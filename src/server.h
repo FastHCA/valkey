@@ -2153,6 +2153,9 @@ struct valkeyServer {
     /* Local environment */
     char *locale_collate;
     char *debug_context; /* A free-form string that has no impact on server except being included in a crash report. */
+
+    char *scriptudf_dir;
+    int  enable_scriptudf_protection;
 };
 
 #define MAX_KEYS_BUFFER 256
@@ -3527,6 +3530,7 @@ dict *evalScriptsDict(void);
 unsigned long evalScriptsMemory(void);
 uint64_t evalGetCommandFlags(client *c, uint64_t orig_flags);
 uint64_t fcallGetCommandFlags(client *c, uint64_t orig_flags);
+uint64_t evalUdfGetCommandFlags(client *c, uint64_t orig_flags);
 int isInsideYieldingLongCommand(void);
 
 /* Cache of recently used small arguments to avoid malloc calls. */
@@ -3824,7 +3828,9 @@ void evalCommand(client *c);
 void evalRoCommand(client *c);
 void evalShaCommand(client *c);
 void evalShaRoCommand(client *c);
+void evalUdfCommand(client *c);
 void scriptCommand(client *c);
+void scriptUdfModuleCommand(client *c);
 void fcallCommand(client *c);
 void fcallroCommand(client *c);
 void functionLoadCommand(client *c);

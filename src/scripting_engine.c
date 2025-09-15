@@ -323,3 +323,8 @@ engineMemoryInfo scriptingEngineCallGetMemoryInfo(scriptingEngine *engine,
     engineTeardownModuleCtx(engine);
     return mem_info;
 }
+
+/* helper */
+engineCtx *extractEngineCtx(scriptingEngine *engine) {
+    return engine->impl.ctx;
+}

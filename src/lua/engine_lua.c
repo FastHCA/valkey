@@ -390,3 +390,15 @@ int luaEngineInitEngine(void) {
                                           createEngineContext(),
                                           &methods);
 }
+
+/* helper */
+lua_State *extractLuaState(engineCtx *engine_ctx, subsystemType type) {
+    luaEngineCtx *lua_engine_ctx = (luaEngineCtx *)engine_ctx;
+    if (type == VMSE_EVAL) {
+        return lua_engine_ctx->eval_lua;
+    } else {
+        serverAssert(type == VMSE_FUNCTION);
+        return lua_engine_ctx->function_lua;
+    }
+    return NULL;
+}

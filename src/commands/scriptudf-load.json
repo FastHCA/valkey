@@ -1,0 +1,35 @@
+{
+    "LOAD": {
+        "summary": "Loads a server-side Lua script to the script cache.",
+        "complexity": "O(N) with N being the length in bytes of the script body.",
+        "group": "scripting",
+        "since": "8.1.2r1",
+        "arity": 4,
+        "container": "SCRIPTUDF",
+        "function": "scriptUdfModuleCommand",
+        "command_flags": [
+            "NOSCRIPT",
+            "STALE"
+        ],
+        "acl_categories": [
+            "SCRIPTING"
+        ],
+        "command_tips": [
+            "REQUEST_POLICY:ALL_NODES",
+            "RESPONSE_POLICY:ALL_SUCCEEDED"
+        ],
+        "arguments": [
+            {
+                "name": "name",
+                "type": "string"
+            },
+            {
+                "name": "script",
+                "type": "string"
+            }
+        ],
+        "reply_schema": {
+            "const": "OK"
+        }
+    }
+}

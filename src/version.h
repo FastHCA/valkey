@@ -4,7 +4,7 @@
  * similar. */
 #define SERVER_NAME "valkey"
 #define SERVER_TITLE "Valkey"
-#define VALKEY_VERSION "8.1.2"
+#define VALKEY_VERSION "8.1.2r1"
 #define VALKEY_VERSION_NUM 0x00080102
 /* The release stage is used in order to provide release status information.
  * In unstable branch the status is always "dev".

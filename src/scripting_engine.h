@@ -83,4 +83,7 @@ callableLazyEvalReset *scriptingEngineCallResetEvalEnvFunc(scriptingEngine *engi
 engineMemoryInfo scriptingEngineCallGetMemoryInfo(scriptingEngine *engine,
                                                   subsystemType type);
 
+/* helper */
+engineCtx *extractEngineCtx(scriptingEngine *engine);
+
 #endif /* _SCRIPTING_ENGINE_H_ */

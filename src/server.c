@@ -2969,6 +2969,13 @@ void initServer(void) {
     /* Initialize the EVAL scripting component. */
     evalInit();
 
+    /* load LUA UDF module & script */
+    if (luaUdfInit(server.scriptudf_dir,
+                   server.enable_scriptudf_protection) != C_OK) {
+        serverPanic("Lua UDF failed, check the server logs.");
+        exit(1);
+    }
+
     commandlogInit();
     latencyMonitorInit();
     initSharedQueryBuf();
@@ -4008,6 +4015,8 @@ uint64_t getCommandFlags(client *c) {
     } else if (c->cmd->proc == evalCommand || c->cmd->proc == evalRoCommand || c->cmd->proc == evalShaCommand ||
                c->cmd->proc == evalShaRoCommand) {
         cmd_flags = evalGetCommandFlags(c, cmd_flags);
+    } else if (c->cmd->proc == evalUdfCommand) {
+        cmd_flags = evalUdfGetCommandFlags(c, cmd_flags);
     }
 
     return cmd_flags;
@@ -5566,6 +5575,7 @@ dict *genInfoSectionDict(robj **argv, int argc, char **defaults, int *out_all, i
         "replication",
         "cpu",
         "module_list",
+        "udf",
         "errorstats",
         "cluster",
         "keyspace",
@@ -6162,6 +6172,13 @@ sds genValkeyInfoString(dict *section_dict, int all_sections, int everything) {
         if (sections++) info = sdscat(info, "\r\n");
         info = sdscatprintf(info, "# Modules\r\n");
         info = genModulesInfoString(info);
+    }
+
+    /* UDF */
+    if (all_sections || (dictFind(section_dict, "udf") != NULL)) {
+        if (sections++) info = sdscat(info, "\r\n");
+        info = sdscatprintf(info, "# UDF\r\n");
+        info = genUdfInfoString(info);
     }
 
     /* Command statistics */

@@ -6,4 +6,7 @@
 
 int luaEngineInitEngine(void);
 
+/* helper */
+lua_State *extractLuaState(engineCtx *engine_ctx, subsystemType type);
+
 #endif /* _ENGINE_LUA_ */

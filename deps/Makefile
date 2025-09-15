@@ -80,12 +80,13 @@ ifeq ($(uname_S),SunOS)
 	LUA_CFLAGS= -D__C99FEATURES__=1
 endif
 
+LUA_CFLAGS+= -std=c99
 LUA_CFLAGS+= -Wall -DLUA_ANSI -DENABLE_CJSON_GLOBAL -DLUA_USE_MKSTEMP $(CFLAGS)
 LUA_LDFLAGS+= $(LDFLAGS)
 ifeq ($(LUA_DEBUG),yes)
 	LUA_CFLAGS+= -O0 -g -DLUA_USE_APICHECK
 else
-	LUA_CFLAGS+= -O2 
+	LUA_CFLAGS+= -O2
 endif
 ifeq ($(LUA_COVERAGE),yes)
 	LUA_CFLAGS += -fprofile-arcs -ftest-coverage
