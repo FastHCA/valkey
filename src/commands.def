@@ -4974,6 +4974,33 @@ struct COMMAND_ARG EVALSHA_RO_Args[] = {
 {MAKE_ARG("arg",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_OPTIONAL|CMD_ARG_MULTIPLE,0,NULL)},
 };
 
+/********** EVALUDF ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* EVALUDF history */
+#define EVALUDF_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* EVALUDF tips */
+#define EVALUDF_Tips NULL
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* EVALUDF key specs */
+keySpec EVALUDF_Keyspecs[1] = {
+{NULL,CMD_KEY_RW|CMD_KEY_ACCESS|CMD_KEY_UPDATE,KSPEC_BS_INDEX,.bs.index={2},KSPEC_FK_KEYNUM,.fk.keynum={0,1,1}}
+};
+#endif
+
+/* EVALUDF argument table */
+struct COMMAND_ARG EVALUDF_Args[] = {
+{MAKE_ARG("name",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_NONE,0,NULL)},
+{MAKE_ARG("numkeys",ARG_TYPE_INTEGER,-1,NULL,NULL,NULL,CMD_ARG_NONE,0,NULL)},
+{MAKE_ARG("key",ARG_TYPE_KEY,0,NULL,NULL,NULL,CMD_ARG_OPTIONAL|CMD_ARG_MULTIPLE,0,NULL)},
+{MAKE_ARG("arg",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_OPTIONAL|CMD_ARG_MULTIPLE,0,NULL)},
+};
+
 /********** EVAL_RO ********************/
 
 #ifndef SKIP_CMD_HISTORY_TABLE
@@ -5499,6 +5526,172 @@ struct COMMAND_STRUCT SCRIPT_Subcommands[] = {
 #ifndef SKIP_CMD_KEY_SPECS_TABLE
 /* SCRIPT key specs */
 #define SCRIPT_Keyspecs NULL
+#endif
+
+/********** SCRIPTUDF EXISTS ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF EXISTS history */
+#define SCRIPTUDF_EXISTS_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF EXISTS tips */
+const char *SCRIPTUDF_EXISTS_Tips[] = {
+"request_policy:all_shards",
+"response_policy:agg_logical_and",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF EXISTS key specs */
+#define SCRIPTUDF_EXISTS_Keyspecs NULL
+#endif
+
+/* SCRIPTUDF EXISTS argument table */
+struct COMMAND_ARG SCRIPTUDF_EXISTS_Args[] = {
+{MAKE_ARG("sha1",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_MULTIPLE,0,NULL)},
+};
+
+/********** SCRIPTUDF INFO ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF INFO history */
+#define SCRIPTUDF_INFO_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF INFO tips */
+const char *SCRIPTUDF_INFO_Tips[] = {
+"nondeterministic_output",
+"request_policy:all_shards",
+"response_policy:special",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF INFO key specs */
+#define SCRIPTUDF_INFO_Keyspecs NULL
+#endif
+
+/********** SCRIPTUDF INSTALL ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF INSTALL history */
+#define SCRIPTUDF_INSTALL_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF INSTALL tips */
+const char *SCRIPTUDF_INSTALL_Tips[] = {
+"request_policy:all_nodes",
+"response_policy:all_succeeded",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF INSTALL key specs */
+#define SCRIPTUDF_INSTALL_Keyspecs NULL
+#endif
+
+/* SCRIPTUDF INSTALL argument table */
+struct COMMAND_ARG SCRIPTUDF_INSTALL_Args[] = {
+{MAKE_ARG("name",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_NONE,0,NULL)},
+{MAKE_ARG("script",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_NONE,0,NULL)},
+};
+
+/********** SCRIPTUDF LIST ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF LIST history */
+#define SCRIPTUDF_LIST_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF LIST tips */
+const char *SCRIPTUDF_LIST_Tips[] = {
+"request_policy:all_shards",
+"response_policy:agg_logical_and",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF LIST key specs */
+#define SCRIPTUDF_LIST_Keyspecs NULL
+#endif
+
+/********** SCRIPTUDF LOAD ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF LOAD history */
+#define SCRIPTUDF_LOAD_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF LOAD tips */
+const char *SCRIPTUDF_LOAD_Tips[] = {
+"request_policy:all_nodes",
+"response_policy:all_succeeded",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF LOAD key specs */
+#define SCRIPTUDF_LOAD_Keyspecs NULL
+#endif
+
+/* SCRIPTUDF LOAD argument table */
+struct COMMAND_ARG SCRIPTUDF_LOAD_Args[] = {
+{MAKE_ARG("name",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_NONE,0,NULL)},
+{MAKE_ARG("script",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_NONE,0,NULL)},
+};
+
+/********** SCRIPTUDF RESTORE ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF RESTORE history */
+#define SCRIPTUDF_RESTORE_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF RESTORE tips */
+const char *SCRIPTUDF_RESTORE_Tips[] = {
+"request_policy:all_shards",
+"response_policy:one_succeeded",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF RESTORE key specs */
+#define SCRIPTUDF_RESTORE_Keyspecs NULL
+#endif
+
+/* SCRIPTUDF command table */
+struct COMMAND_STRUCT SCRIPTUDF_Subcommands[] = {
+{MAKE_CMD("exists","Determines whether server-side Lua scripts exist in the script cache.","O(N) with N being the number of scripts to check (so checking a single script is an O(1) operation).","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_EXISTS_History,0,SCRIPTUDF_EXISTS_Tips,2,scriptUdfModuleCommand,-3,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_EXISTS_Keyspecs,0,NULL,1),.args=SCRIPTUDF_EXISTS_Args},
+{MAKE_CMD("info","Returns information about the UDF in the server.","O(1)","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_INFO_History,0,SCRIPTUDF_INFO_Tips,3,scriptUdfModuleCommand,2,CMD_LOADING|CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_DANGEROUS,SCRIPTUDF_INFO_Keyspecs,0,NULL,0)},
+{MAKE_CMD("install","Installs a server-side Lua UDF module script to the script run-time.","O(N) with N being the length in bytes of the script body.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_INSTALL_History,0,SCRIPTUDF_INSTALL_Tips,2,scriptUdfModuleCommand,4,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_INSTALL_Keyspecs,0,NULL,2),.args=SCRIPTUDF_INSTALL_Args},
+{MAKE_CMD("list","Returns all names of server-side Lua UDF.","O(N) where N is the number of the Lua UDFs.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_LIST_History,0,SCRIPTUDF_LIST_Tips,2,scriptUdfModuleCommand,2,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_LIST_Keyspecs,0,NULL,0)},
+{MAKE_CMD("load","Loads a server-side Lua script to the script cache.","O(N) with N being the length in bytes of the script body.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_LOAD_History,0,SCRIPTUDF_LOAD_Tips,2,scriptUdfModuleCommand,4,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_LOAD_Keyspecs,0,NULL,2),.args=SCRIPTUDF_LOAD_Args},
+{MAKE_CMD("restore","Reloads a server-side Lua UDF module script to the script run-time.","O(N) with N being the length in bytes of the script body.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_RESTORE_History,0,SCRIPTUDF_RESTORE_Tips,2,scriptUdfModuleCommand,2,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_RESTORE_Keyspecs,0,NULL,0)},
+{0}
+};
+
+/********** SCRIPTUDF ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* SCRIPTUDF history */
+#define SCRIPTUDF_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* SCRIPTUDF tips */
+#define SCRIPTUDF_Tips NULL
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* SCRIPTUDF key specs */
+#define SCRIPTUDF_Keyspecs NULL
 #endif
 
 /********** SENTINEL CKQUORUM ********************/
@@ -11172,11 +11365,13 @@ struct COMMAND_STRUCT serverCommandTable[] = {
 {MAKE_CMD("eval","Executes a server-side Lua script.","Depends on the script that is executed.","2.6.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,EVAL_History,0,EVAL_Tips,0,evalCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_MAY_REPLICATE|CMD_NO_MANDATORY_KEYS|CMD_STALE,ACL_CATEGORY_SCRIPTING,EVAL_Keyspecs,1,evalGetKeys,4),.args=EVAL_Args},
 {MAKE_CMD("evalsha","Executes a server-side Lua script by SHA1 digest.","Depends on the script that is executed.","2.6.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,EVALSHA_History,0,EVALSHA_Tips,0,evalShaCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_MAY_REPLICATE|CMD_NO_MANDATORY_KEYS|CMD_STALE,ACL_CATEGORY_SCRIPTING,EVALSHA_Keyspecs,1,evalGetKeys,4),.args=EVALSHA_Args},
 {MAKE_CMD("evalsha_ro","Executes a read-only server-side Lua script by SHA1 digest.","Depends on the script that is executed.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,EVALSHA_RO_History,0,EVALSHA_RO_Tips,0,evalShaRoCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_NO_MANDATORY_KEYS|CMD_STALE|CMD_READONLY,ACL_CATEGORY_SCRIPTING,EVALSHA_RO_Keyspecs,1,evalGetKeys,4),.args=EVALSHA_RO_Args},
+{MAKE_CMD("evaludf","Executes a server-side Lua script by UDF name.","Depends on the script that is executed.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,EVALUDF_History,0,EVALUDF_Tips,0,evalUdfCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_MAY_REPLICATE|CMD_NO_MANDATORY_KEYS|CMD_STALE,ACL_CATEGORY_SCRIPTING,EVALUDF_Keyspecs,1,evalGetKeys,4),.args=EVALUDF_Args},
 {MAKE_CMD("eval_ro","Executes a read-only server-side Lua script.","Depends on the script that is executed.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,EVAL_RO_History,0,EVAL_RO_Tips,0,evalRoCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_NO_MANDATORY_KEYS|CMD_STALE|CMD_READONLY,ACL_CATEGORY_SCRIPTING,EVAL_RO_Keyspecs,1,evalGetKeys,4),.args=EVAL_RO_Args},
 {MAKE_CMD("fcall","Invokes a function.","Depends on the function that is executed.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,FCALL_History,0,FCALL_Tips,0,fcallCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_MAY_REPLICATE|CMD_NO_MANDATORY_KEYS|CMD_STALE,ACL_CATEGORY_SCRIPTING,FCALL_Keyspecs,1,functionGetKeys,4),.args=FCALL_Args},
 {MAKE_CMD("fcall_ro","Invokes a read-only function.","Depends on the function that is executed.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,FCALL_RO_History,0,FCALL_RO_Tips,0,fcallroCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_NO_MANDATORY_KEYS|CMD_STALE|CMD_READONLY,ACL_CATEGORY_SCRIPTING,FCALL_RO_Keyspecs,1,functionGetKeys,4),.args=FCALL_RO_Args},
 {MAKE_CMD("function","A container for function commands.","Depends on subcommand.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,FUNCTION_History,0,FUNCTION_Tips,0,NULL,-2,0,0,FUNCTION_Keyspecs,0,NULL,0),.subcommands=FUNCTION_Subcommands},
 {MAKE_CMD("script","A container for Lua scripts management commands.","Depends on subcommand.","2.6.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPT_History,0,SCRIPT_Tips,0,NULL,-2,0,0,SCRIPT_Keyspecs,0,NULL,0),.subcommands=SCRIPT_Subcommands},
+{MAKE_CMD("scriptudf","A container for Lua scripts management commands.","Depends on subcommand.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_History,0,SCRIPTUDF_Tips,0,NULL,-2,0,0,SCRIPTUDF_Keyspecs,0,NULL,0),.subcommands=SCRIPTUDF_Subcommands},
 /* sentinel */
 {MAKE_CMD("sentinel","A container for Sentinel commands.","Depends on subcommand.","2.8.4",CMD_DOC_NONE,NULL,NULL,"sentinel",COMMAND_GROUP_SENTINEL,SENTINEL_History,0,SENTINEL_Tips,0,NULL,-2,CMD_ADMIN|CMD_SENTINEL|CMD_ONLY_SENTINEL,0,SENTINEL_Keyspecs,0,NULL,0),.subcommands=SENTINEL_Subcommands},
 /* server */
@@ -11306,8 +11501,4 @@ struct COMMAND_STRUCT serverCommandTable[] = {
 /* transactions */
 {MAKE_CMD("discard","Discards a transaction.","O(N), when N is the number of queued commands","2.0.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,DISCARD_History,0,DISCARD_Tips,0,discardCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,DISCARD_Keyspecs,0,NULL,0)},
 {MAKE_CMD("exec","Executes all commands in a transaction.","Depends on commands in the transaction","1.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,EXEC_History,0,EXEC_Tips,0,execCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_SKIP_COMMANDLOG,ACL_CATEGORY_TRANSACTION,EXEC_Keyspecs,0,NULL,0)},
-{MAKE_CMD("multi","Starts a transaction.","O(1)","1.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,MULTI_History,0,MULTI_Tips,0,multiCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_NO_MULTI|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,MULTI_Keyspecs,0,NULL,0)},
-{MAKE_CMD("unwatch","Forgets about watched keys of a transaction.","O(1)","2.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,UNWATCH_History,0,UNWATCH_Tips,0,unwatchCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,UNWATCH_Keyspecs,0,NULL,0)},
-{MAKE_CMD("watch","Monitors changes to keys to determine the execution of a transaction.","O(1) for every key.","2.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,WATCH_History,0,WATCH_Tips,0,watchCommand,-2,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_NO_MULTI|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,WATCH_Keyspecs,1,NULL,1),.args=WATCH_Args},
-{0}
-};
+{MAKE_CMD("multi","Starts a transaction.","O(1)","1.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,MULTI_History,0,MULTI_Tips,0,multiCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_ST
