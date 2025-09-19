@@ -2154,6 +2154,7 @@ struct valkeyServer {
     char *locale_collate;
     char *debug_context; /* A free-form string that has no impact on server except being included in a crash report. */
 
+    char *lualib_dir;
     char *scriptudf_dir;
     int  enable_scriptudf_protection;
 };
@@ -3829,6 +3830,7 @@ void evalRoCommand(client *c);
 void evalShaCommand(client *c);
 void evalShaRoCommand(client *c);
 void evalUdfCommand(client *c);
+void luaLibCommand(client *c);
 void scriptCommand(client *c);
 void scriptUdfModuleCommand(client *c);
 void fcallCommand(client *c);

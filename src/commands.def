@@ -5328,6 +5328,70 @@ struct COMMAND_STRUCT FUNCTION_Subcommands[] = {
 #define FUNCTION_Keyspecs NULL
 #endif
 
+/********** LUALIB LIST ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* LUALIB LIST history */
+#define LUALIB_LIST_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* LUALIB LIST tips */
+const char *LUALIB_LIST_Tips[] = {
+"request_policy:all_shards",
+"response_policy:agg_logical_and",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* LUALIB LIST key specs */
+#define LUALIB_LIST_Keyspecs NULL
+#endif
+
+/********** LUALIB RESTORE ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* LUALIB RESTORE history */
+#define LUALIB_RESTORE_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* LUALIB RESTORE tips */
+const char *LUALIB_RESTORE_Tips[] = {
+"request_policy:all_shards",
+"response_policy:one_succeeded",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* LUALIB RESTORE key specs */
+#define LUALIB_RESTORE_Keyspecs NULL
+#endif
+
+/* LUALIB command table */
+struct COMMAND_STRUCT LUALIB_Subcommands[] = {
+{MAKE_CMD("list","Returns all server-side Lua libraries.","O(N) where N is the number of the Lua libraries.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_LIST_History,0,LUALIB_LIST_Tips,2,luaLibCommand,2,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,LUALIB_LIST_Keyspecs,0,NULL,0)},
+{MAKE_CMD("restore","Reloads all server-side Lua libraries to the lua run-time.","O(N) with N being the length in bytes of the library size.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_RESTORE_History,0,LUALIB_RESTORE_Tips,2,luaLibCommand,2,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,LUALIB_RESTORE_Keyspecs,0,NULL,0)},
+{0}
+};
+
+/********** LUALIB ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* LUALIB history */
+#define LUALIB_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* LUALIB tips */
+#define LUALIB_Tips NULL
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* LUALIB key specs */
+#define LUALIB_Keyspecs NULL
+#endif
+
 /********** SCRIPT DEBUG ********************/
 
 #ifndef SKIP_CMD_HISTORY_TABLE
@@ -5553,27 +5617,6 @@ struct COMMAND_ARG SCRIPTUDF_EXISTS_Args[] = {
 {MAKE_ARG("sha1",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_MULTIPLE,0,NULL)},
 };
 
-/********** SCRIPTUDF INFO ********************/
-
-#ifndef SKIP_CMD_HISTORY_TABLE
-/* SCRIPTUDF INFO history */
-#define SCRIPTUDF_INFO_History NULL
-#endif
-
-#ifndef SKIP_CMD_TIPS_TABLE
-/* SCRIPTUDF INFO tips */
-const char *SCRIPTUDF_INFO_Tips[] = {
-"nondeterministic_output",
-"request_policy:all_shards",
-"response_policy:special",
-};
-#endif
-
-#ifndef SKIP_CMD_KEY_SPECS_TABLE
-/* SCRIPTUDF INFO key specs */
-#define SCRIPTUDF_INFO_Keyspecs NULL
-#endif
-
 /********** SCRIPTUDF INSTALL ********************/
 
 #ifndef SKIP_CMD_HISTORY_TABLE
@@ -5669,7 +5712,6 @@ const char *SCRIPTUDF_RESTORE_Tips[] = {
 /* SCRIPTUDF command table */
 struct COMMAND_STRUCT SCRIPTUDF_Subcommands[] = {
 {MAKE_CMD("exists","Determines whether server-side Lua scripts exist in the script cache.","O(N) with N being the number of scripts to check (so checking a single script is an O(1) operation).","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_EXISTS_History,0,SCRIPTUDF_EXISTS_Tips,2,scriptUdfModuleCommand,-3,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_EXISTS_Keyspecs,0,NULL,1),.args=SCRIPTUDF_EXISTS_Args},
-{MAKE_CMD("info","Returns information about the UDF in the server.","O(1)","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_INFO_History,0,SCRIPTUDF_INFO_Tips,3,scriptUdfModuleCommand,2,CMD_LOADING|CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_DANGEROUS,SCRIPTUDF_INFO_Keyspecs,0,NULL,0)},
 {MAKE_CMD("install","Installs a server-side Lua UDF module script to the script run-time.","O(N) with N being the length in bytes of the script body.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_INSTALL_History,0,SCRIPTUDF_INSTALL_Tips,2,scriptUdfModuleCommand,4,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_INSTALL_Keyspecs,0,NULL,2),.args=SCRIPTUDF_INSTALL_Args},
 {MAKE_CMD("list","Returns all names of server-side Lua UDF.","O(N) where N is the number of the Lua UDFs.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_LIST_History,0,SCRIPTUDF_LIST_Tips,2,scriptUdfModuleCommand,2,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_LIST_Keyspecs,0,NULL,0)},
 {MAKE_CMD("load","Loads a server-side Lua script to the script cache.","O(N) with N being the length in bytes of the script body.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_LOAD_History,0,SCRIPTUDF_LOAD_Tips,2,scriptUdfModuleCommand,4,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,SCRIPTUDF_LOAD_Keyspecs,0,NULL,2),.args=SCRIPTUDF_LOAD_Args},
@@ -11370,6 +11412,7 @@ struct COMMAND_STRUCT serverCommandTable[] = {
 {MAKE_CMD("fcall","Invokes a function.","Depends on the function that is executed.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,FCALL_History,0,FCALL_Tips,0,fcallCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_MAY_REPLICATE|CMD_NO_MANDATORY_KEYS|CMD_STALE,ACL_CATEGORY_SCRIPTING,FCALL_Keyspecs,1,functionGetKeys,4),.args=FCALL_Args},
 {MAKE_CMD("fcall_ro","Invokes a read-only function.","Depends on the function that is executed.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,FCALL_RO_History,0,FCALL_RO_Tips,0,fcallroCommand,-3,CMD_NOSCRIPT|CMD_SKIP_MONITOR|CMD_NO_MANDATORY_KEYS|CMD_STALE|CMD_READONLY,ACL_CATEGORY_SCRIPTING,FCALL_RO_Keyspecs,1,functionGetKeys,4),.args=FCALL_RO_Args},
 {MAKE_CMD("function","A container for function commands.","Depends on subcommand.","7.0.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,FUNCTION_History,0,FUNCTION_Tips,0,NULL,-2,0,0,FUNCTION_Keyspecs,0,NULL,0),.subcommands=FUNCTION_Subcommands},
+{MAKE_CMD("lualib","A container for Lua library management commands.","Depends on subcommand.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_History,0,LUALIB_Tips,0,NULL,-2,0,0,LUALIB_Keyspecs,0,NULL,0),.subcommands=LUALIB_Subcommands},
 {MAKE_CMD("script","A container for Lua scripts management commands.","Depends on subcommand.","2.6.0",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPT_History,0,SCRIPT_Tips,0,NULL,-2,0,0,SCRIPT_Keyspecs,0,NULL,0),.subcommands=SCRIPT_Subcommands},
 {MAKE_CMD("scriptudf","A container for Lua scripts management commands.","Depends on subcommand.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,SCRIPTUDF_History,0,SCRIPTUDF_Tips,0,NULL,-2,0,0,SCRIPTUDF_Keyspecs,0,NULL,0),.subcommands=SCRIPTUDF_Subcommands},
 /* sentinel */
@@ -11501,4 +11544,8 @@ struct COMMAND_STRUCT serverCommandTable[] = {
 /* transactions */
 {MAKE_CMD("discard","Discards a transaction.","O(N), when N is the number of queued commands","2.0.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,DISCARD_History,0,DISCARD_Tips,0,discardCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,DISCARD_Keyspecs,0,NULL,0)},
 {MAKE_CMD("exec","Executes all commands in a transaction.","Depends on commands in the transaction","1.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,EXEC_History,0,EXEC_Tips,0,execCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_SKIP_COMMANDLOG,ACL_CATEGORY_TRANSACTION,EXEC_Keyspecs,0,NULL,0)},
-{MAKE_CMD("multi","Starts a transaction.","O(1)","1.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,MULTI_History,0,MULTI_Tips,0,multiCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_ST
+{MAKE_CMD("multi","Starts a transaction.","O(1)","1.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,MULTI_History,0,MULTI_Tips,0,multiCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_NO_MULTI|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,MULTI_Keyspecs,0,NULL,0)},
+{MAKE_CMD("unwatch","Forgets about watched keys of a transaction.","O(1)","2.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,UNWATCH_History,0,UNWATCH_Tips,0,unwatchCommand,1,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,UNWATCH_Keyspecs,0,NULL,0)},
+{MAKE_CMD("watch","Monitors changes to keys to determine the execution of a transaction.","O(1) for every key.","2.2.0",CMD_DOC_NONE,NULL,NULL,"transactions",COMMAND_GROUP_TRANSACTIONS,WATCH_History,0,WATCH_Tips,0,watchCommand,-2,CMD_NOSCRIPT|CMD_LOADING|CMD_STALE|CMD_FAST|CMD_NO_MULTI|CMD_ALLOW_BUSY,ACL_CATEGORY_TRANSACTION,WATCH_Keyspecs,1,NULL,1),.args=WATCH_Args},
+{0}
+};

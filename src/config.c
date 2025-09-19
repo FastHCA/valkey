@@ -3221,6 +3221,7 @@ standardConfig static_configs[] = {
     createStringConfig("bind-source-addr", NULL, MODIFIABLE_CONFIG, EMPTY_STRING_IS_NULL, server.bind_source_addr, NULL, NULL, NULL),
     createStringConfig("logfile", NULL, IMMUTABLE_CONFIG, ALLOW_EMPTY_STRING, server.logfile, "", NULL, NULL),
     createStringConfig("scriptudf-dir", NULL, IMMUTABLE_CONFIG, ALLOW_EMPTY_STRING, server.scriptudf_dir, "", NULL, NULL),
+    createStringConfig("lualib-dir", NULL, IMMUTABLE_CONFIG, ALLOW_EMPTY_STRING, server.lualib_dir, "", NULL, NULL),
 #ifdef LOG_REQ_RES
     createStringConfig("req-res-logfile", NULL, IMMUTABLE_CONFIG | HIDDEN_CONFIG, EMPTY_STRING_IS_NULL, server.req_res_logfile, NULL, NULL, NULL),
 #endif

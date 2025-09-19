@@ -1,0 +1,9 @@
+{
+    "LUALIB": {
+        "summary": "A container for Lua library management commands.",
+        "complexity": "Depends on subcommand.",
+        "group": "scripting",
+        "since": "8.1.2r1",
+        "arity": -2
+    }
+}

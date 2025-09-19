@@ -2969,10 +2969,16 @@ void initServer(void) {
     /* Initialize the EVAL scripting component. */
     evalInit();
 
+    /* load LUA library */
+    if (luaLibInit(server.lualib_dir) != C_OK) {
+        serverPanic("Loading Lua libraries failed, check the server logs.");
+        exit(1);
+    }
+
     /* load LUA UDF module & script */
     if (luaUdfInit(server.scriptudf_dir,
                    server.enable_scriptudf_protection) != C_OK) {
-        serverPanic("Lua UDF failed, check the server logs.");
+        serverPanic("Loading Lua UDFs failed, check the server logs.");
         exit(1);
     }
 
@@ -5575,6 +5581,7 @@ dict *genInfoSectionDict(robj **argv, int argc, char **defaults, int *out_all, i
         "replication",
         "cpu",
         "module_list",
+        "lualib",
         "udf",
         "errorstats",
         "cluster",
@@ -6172,6 +6179,13 @@ sds genValkeyInfoString(dict *section_dict, int all_sections, int everything) {
         if (sections++) info = sdscat(info, "\r\n");
         info = sdscatprintf(info, "# Modules\r\n");
         info = genModulesInfoString(info);
+    }
+
+    /* LUALIB */
+    if (all_sections || (dictFind(section_dict, "lualib") != NULL)) {
+        if (sections++) info = sdscat(info, "\r\n");
+        info = sdscatprintf(info, "# LUALIB\r\n");
+        info = genLuaLibInfoString(info);
     }
 
     /* UDF */
