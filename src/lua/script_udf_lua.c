@@ -160,5 +160,7 @@ int getGlobalElementNames(scriptingEngine *engine,
     lua_settop(lua, 0);
 
     setTypeAdd(names, sdsnew(GLOBAL_UDF_MODULE_NAME));
+    setTypeAdd(names, sdsnew("ARGV"));
+    setTypeAdd(names, sdsnew("KEYS"));
     return count;
 }

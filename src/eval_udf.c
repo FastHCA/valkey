@@ -430,35 +430,6 @@ int luaUdfInit(const char *udf_path,
 }
 
 
-static int reloadLuaLib(client *c) {
-    const char      *path   = luaLibCtx.libDir;
-    scriptingEngine *engine = luaLibCtx.scriptingEngine;
-
-    if (!path) {
-        return C_OK;
-    }
-    if (!engine) {
-        addReplyError(c, "Cannot find script engine lua");
-        return C_ERR;
-    }
-
-    if (strcmp(path, "")) {
-        serverLog(LL_NOTICE, "Load UDF via path '%s'", path);
-
-        sds err = NULL;
-        loadLuaLibFile(engine, path, &err);
-        if (err) {
-            serverAssert(err != NULL);
-
-            addReplyError(c, err);
-            sdsfree(err);
-            return C_ERR;
-        }
-    }
-    return C_OK;
-}
-
-
 static int reloadUdf(client *c) {
     const char      *path   = evalUdfCtx.udfDir;
     scriptingEngine *engine = evalUdfCtx.scriptingEngine;
@@ -712,12 +683,7 @@ sds genLuaLibInfoString(sds info) {
 
 
 void luaLibCommand(client *c) {
-    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr, "restore")) {  // LUALIB RESTORE
-        if (reloadLuaLib(c) == C_ERR) {
-            return;
-        }
-        addReply(c, shared.ok);
-    } else if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr, "list")) {
+    if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr, "list")) {
         robj *loadedLibNames = luaLibCtx.loadedLibNames;
 
         addReplyArrayLen(c, (long)setTypeSize(loadedLibNames));

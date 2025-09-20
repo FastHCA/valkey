@@ -5348,30 +5348,9 @@ const char *LUALIB_LIST_Tips[] = {
 #define LUALIB_LIST_Keyspecs NULL
 #endif
 
-/********** LUALIB RESTORE ********************/
-
-#ifndef SKIP_CMD_HISTORY_TABLE
-/* LUALIB RESTORE history */
-#define LUALIB_RESTORE_History NULL
-#endif
-
-#ifndef SKIP_CMD_TIPS_TABLE
-/* LUALIB RESTORE tips */
-const char *LUALIB_RESTORE_Tips[] = {
-"request_policy:all_shards",
-"response_policy:one_succeeded",
-};
-#endif
-
-#ifndef SKIP_CMD_KEY_SPECS_TABLE
-/* LUALIB RESTORE key specs */
-#define LUALIB_RESTORE_Keyspecs NULL
-#endif
-
 /* LUALIB command table */
 struct COMMAND_STRUCT LUALIB_Subcommands[] = {
 {MAKE_CMD("list","Returns all server-side Lua libraries.","O(N) where N is the number of the Lua libraries.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_LIST_History,0,LUALIB_LIST_Tips,2,luaLibCommand,2,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,LUALIB_LIST_Keyspecs,0,NULL,0)},
-{MAKE_CMD("restore","Reloads all server-side Lua libraries to the lua run-time.","O(N) with N being the length in bytes of the library size.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_RESTORE_History,0,LUALIB_RESTORE_Tips,2,luaLibCommand,2,CMD_NOSCRIPT|CMD_STALE,ACL_CATEGORY_SCRIPTING,LUALIB_RESTORE_Keyspecs,0,NULL,0)},
 {0}
 };
 

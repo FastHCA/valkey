@@ -20,10 +20,6 @@ int luaRegisterUdfModuleContent(scriptingEngine *engine,
                                 const char      *name,
                                 robj            **err);
 
-// int getGlobalElementNames(scriptingEngine *engine,
-//                           subsystemType   type,
-//                           char            ***names);
-
 int getGlobalElementNames(scriptingEngine *engine,
                           subsystemType   type,
                           robj            **names);
