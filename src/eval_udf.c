@@ -10,6 +10,8 @@
 #include "lua/engine_lua.h"
 #include "lua/script_udf_lua.h"
 // #include "scripting_engine.h"
+
+#include <dlfcn.h>
 #include <dirent.h>
 #include <sys/types.h> // Required for DT_REG
 #include "fmtargs.h"
@@ -20,13 +22,13 @@ struct luaLibCtx {
     char            *libDir;
     scriptingEngine *scriptingEngine;
     robj            *protectedGlobalNames;
-    robj            *loadedLibNames;
+    dict            *loadedLibs;         // key:(char*)libname, value:(void*)lib
 } luaLibCtx;
 
 struct evalUdfCtx {
     char            *udfDir;
     scriptingEngine *scriptingEngine;
-    dict            *scripts;      // key:udf_name, value:sha(sds)
+    dict            *scripts;      // key:(char*)udf_name, value:(compiledFunction*)
 
     int enable_scriptudf_protection;
 } evalUdfCtx;
@@ -42,17 +44,19 @@ static osLibExtInfo osLibExts[] = {
     {NULL    , 0}
 };
 
-static uint64_t dictUdfCStrHash(const void *key) {
+static uint64_t dictCStrHash(const void *key) {
     return dictGenHashFunction((unsigned char *)key, strlen((char *)key));
 }
 
 /* Dict compare function for null terminated string */
-static int dictUdfCStrKeyCompare(const void *key1, const void *key2) {
-    int l1, l2;
-    l1 = strlen((char *)key1);
-    l2 = strlen((char *)key2);
-    if (l1 != l2) return 0;
-    return memcmp(key1, key2, l1) == 0;
+static int dictCStrKeyCompare(const void *key1, const void *key2) {
+    return strcmp(key1, key2) == 0;
+}
+
+static void dictLibFree(void *val) {
+    if (val != NULL) {
+        dlclose(val);
+    }
 }
 
 static char *normalizeDirPath(const char *path) {
@@ -66,12 +70,21 @@ static char *normalizeDirPath(const char *path) {
     return out_path;
 }
 
-dictType udfScriptMappingDictType = {
-    dictUdfCStrHash,       /* hash function */
+dictType luaLibMappingDictType = {
+    dictCStrHash,          /* hash function */
     NULL,                  /* key dup */
-    dictUdfCStrKeyCompare, /* key compare */
+    dictCStrKeyCompare,    /* key compare */
     dictVanillaFree,       /* key destructor */
-    dictSdsDestructor,     /* val destructor */
+    dictLibFree,           /* val destructor */
+    NULL,                  /* allow to expand */
+};
+
+dictType udfScriptMappingDictType = {
+    dictCStrHash,          /* hash function */
+    NULL,                  /* key dup */
+    dictCStrKeyCompare,    /* key compare */
+    dictVanillaFree,       /* key destructor */
+    dictVanillaFree,       /* val destructor */
     NULL,                  /* allow to expand */
 };
 
@@ -87,7 +100,7 @@ void luaLibCtxInit(sds *err) {
 
     luaLibCtx.scriptingEngine      = engine;
     luaLibCtx.protectedGlobalNames = globalNames;
-    luaLibCtx.loadedLibNames       = createSetObject();
+    luaLibCtx.loadedLibs           = dictCreate(&luaLibMappingDictType);
 }
 
 void evalUdfCtxInit(sds *err) {
@@ -101,13 +114,20 @@ void evalUdfCtxInit(sds *err) {
     evalUdfCtx.scripts         = dictCreate(&udfScriptMappingDictType);
 }
 
+int putLuaLib(char *name, void *lib) {
+    return dictReplace(luaLibCtx.loadedLibs, name, lib);
+}
+
 int addUdfScript(char *name, compiledFunction *function) {
     return dictAdd(evalUdfCtx.scripts, name, function);
 }
 
+dictEntry *lookupLuaLib(sds name) {
+    return dictFind(luaLibCtx.loadedLibs, (char *)name);
+}
+
 dictEntry *lookupUdfScript(sds name) {
-    dictEntry *de = dictFind(evalUdfCtx.scripts, (char *)name);
-    return de;
+    return dictFind(evalUdfCtx.scripts, (char *)name);
 }
 
 
@@ -140,12 +160,13 @@ void loadUdfModuleFile(scriptingEngine *engine,
 
                 // get module name
                 size_t module_name_size = len - 4;
-                sds module_name = sdsnew(entry->d_name);
-                sdssubstr(module_name, 0, module_name_size);
+                char *module_name = zmalloc(sizeof(char *) * module_name_size + 1);;
+                memcpy(module_name, entry->d_name, module_name_size);
+                module_name[module_name_size] = '\0';
 
                 robj *_err = NULL;
-                luaRegisterUdfModuleFile(engine, VMSE_EVAL, (char *)file_path, (char *)module_name, &_err);
-                sdsfree(module_name);
+                luaRegisterUdfModuleFile(engine, VMSE_EVAL, (char *)file_path, module_name, &_err);
+                zfree(module_name);
                 sdsfree(file_path);
                 if (_err != NULL) {
                     serverAssert(_err != NULL);
@@ -251,7 +272,6 @@ void loadUdfScriptFile(scriptingEngine *engine,
 
                 serverAssert(num_compiled_functions == 1);
                 // add to evalUdfCtx.scripts
-                // dictAdd(evalUdfCtx.scripts, script_name, functions[0]);
                 addUdfScript(script_name, functions[0]);
 
                 zfree(script_name);
@@ -303,40 +323,51 @@ void loadLuaLibFile(scriptingEngine *engine,
                 file_path = sdscat(file_path, entry->d_name);
 
                 // get module name
-                size_t module_name_size = len - info.length;
-                sds module_name = sdsnew(entry->d_name);
-                sdssubstr(module_name, 0, module_name_size);
+                size_t libname_size = len - info.length;
+                char *libname = zmalloc(sizeof(char *) * libname_size + 1);
+                memcpy(libname, entry->d_name, libname_size);
+                libname[libname_size] = '\0';
 
-                // check module_name
-                if (setTypeIsMember(luaLibCtx.protectedGlobalNames, module_name)) {
+                // check libname
+                if (setTypeIsMemberAux(luaLibCtx.protectedGlobalNames, libname, libname_size, 0, 0)) {
                     serverLog(LL_WARNING,
                         "Ignored lua library file: %s. The name '%s' is protected by _G.",
                         file_path,
-                        (char *)module_name);
+                        libname);
                     continue;
                 }
 
                 // register library to lua global
-                robj *_err = NULL;
-                luaRegisterLibFile(engine, VMSE_EVAL, (char *)file_path, (char *)module_name, &_err);
+                void *lib = dlopen(file_path, RTLD_NOW);
+                if (lib == NULL) {
+                    *err = sdscatfmt(sdsempty(), "Error loading lua library file: %s. %s", file_path, dlerror());
 
-                if (_err != NULL) {
-                    serverAssert(_err != NULL);
-
-                    *err = sdscatfmt(sdsempty(), "Error loading lua library file: %s. %s", file_path, (char *)_err->ptr);
-
-                    decrRefCount(_err);
-                    sdsfree(module_name);
+                    zfree(libname);
                     sdsfree(file_path);
 
                     serverLog(LL_WARNING, (char *)*err);
                     break;
                 }
 
-                // add loaded library name
-                setTypeAdd(luaLibCtx.loadedLibNames, module_name);
+                robj *_err = NULL;
+                luaRegisterLibFile(engine, VMSE_EVAL, lib, libname, &_err);
+                if (_err != NULL) {
+                    serverAssert(_err != NULL);
 
-                sdsfree(module_name);
+                    *err = sdscatfmt(sdsempty(), "Error loading lua library file: %s. %s", file_path, (char *)_err->ptr);
+
+                    decrRefCount(_err);
+                    zfree(libname);
+                    zfree(file_path);
+                    dlclose(lib);
+
+                    serverLog(LL_WARNING, (char *)*err);
+                    break;
+                }
+
+                // add luaLibCtx.loadedLibs
+                putLuaLib(libname, lib);
+
                 sdsfree(file_path);
             }
         }
@@ -539,7 +570,6 @@ static int registerUdfScriptSource(client *c, robj *name, robj *body) {
         memcpy(script_name, name->ptr, script_name_size);
         script_name[script_name_size] = '\0';
 
-        // dictAdd(evalUdfCtx.scripts, (char *)((sds)name->ptr), functions[0]);
         addUdfScript(script_name, functions[0]);
 
         zfree(script_name);
@@ -678,22 +708,19 @@ sds genLuaLibInfoString(sds info) {
         info,
         FMTARGS(
             "lualib_dir:%s\r\n", (luaLibCtx.libDir ? luaLibCtx.libDir : ""),
-            "loaded_libraries:%ld\r\n", setTypeSize(luaLibCtx.loadedLibNames)));
+            "loaded_libraries:%ld\r\n", dictSize(luaLibCtx.loadedLibs)));
 }
 
 
 void luaLibCommand(client *c) {
     if (c->argc == 2 && !strcasecmp(c->argv[1]->ptr, "list")) {
-        robj *loadedLibNames = luaLibCtx.loadedLibNames;
-
-        addReplyArrayLen(c, (long)setTypeSize(loadedLibNames));
-
-        sds libname;
-        setTypeIterator *si = setTypeInitIterator(loadedLibNames);
-        while ((libname = setTypeNextObject(si)) != NULL) {
-            addReplyBulkCString(c, (char *)libname);
+        addReplyArrayLen(c, dictSize(luaLibCtx.loadedLibs));
+        dictIterator *di = dictGetIterator(luaLibCtx.loadedLibs);
+        dictEntry *de;
+        while ((de = dictNext(di)) != NULL) {
+            addReplyBulkCString(c, (char *)dictGetKey(de));
         }
-        setTypeReleaseIterator(si);
+        dictReleaseIterator(di);
     } else {
         addReplySubcommandSyntaxError(c);
     }

@@ -6,7 +6,7 @@
 
 int luaRegisterLibFile(scriptingEngine *engine,
                        subsystemType   type,
-                       const char      *file,
+                       void            *lib,
                        const char      *name,
                        robj            **err);
 int luaRegisterUdfModuleFile(scriptingEngine *engine,

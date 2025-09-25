@@ -1,5 +1,6 @@
 #include "script_udf_lua.h"
 #include "engine_lua.h"
+#include <dlfcn.h>
 
 #define GLOBAL_UDF_MODULE_NAME "_M"
 
@@ -29,9 +30,9 @@ int luaRegisterUdfModule(lua_State *lua,
     if (lua_isnil(lua, -1)) {
         /** Create _M table when it is non-existent. **/
         lua_enablereadonlytable(lua, LUA_GLOBALSINDEX, 0);
-        lua_pop(lua, 1);           // throw nil        { top }
-        lua_newtable(lua);         // create table _M  { top, _M }
-        lua_pushvalue(lua, -1);    // copy table _M    { top, _M, _M }
+        lua_pop(lua, 1);                             // throw nil        { top }
+        lua_newtable(lua);                           // create table _M  { top, _M }
+        lua_pushvalue(lua, -1);                      // copy table _M    { top, _M, _M }
         lua_setglobal(lua, GLOBAL_UDF_MODULE_NAME);  //                  { top, _M }
         luaSetErrorMetatable(lua);
         lua_enablereadonlytable(lua, LUA_GLOBALSINDEX, 1);
@@ -62,23 +63,31 @@ int luaRegisterUdfModule(lua_State *lua,
     return C_OK;
 }
 
-int luaRegisterLib(lua_State *lua,
-                   const char *file,
-                   const char *name,
+
+int doLuaRegisterLib(lua_State *lua,
+                   void *lib,
+                   const char *libname,
                    robj **err) {
 
     lua_pushvalue(lua, LUA_GLOBALSINDEX);   // { top, _G }
     lua_enablereadonlytable(lua, LUA_GLOBALSINDEX, 0);  // unset readonly to _G
 
-    if (luaL_loadlib(lua, file, name)) {    // { top, _G, <cfunc> }
-        sds error = sdscatfmt(sdsempty(), "Error loading lua library via '%s': %s", file, lua_tostring(lua, -1));
-        *err = createObject(OBJ_STRING, error);
-        goto label_done;
+    lua_CFunction luaopen_func;
+    {
+        const char *funcname;
+        funcname = lua_pushfstring(lua, "luaopen_%s", libname);  // { top, _G, "luaopen_<libname>" }
+        lua_remove(lua, -1);                                     // { top, _G }
+
+        luaopen_func = (lua_CFunction)(unsigned long)dlsym(lib, funcname);
+        if (luaopen_func == NULL) {
+            *err = createObject(OBJ_STRING, sdsnew(dlerror()));
+            goto label_done;
+        }
     }
-    lua_pushstring(lua, name);              // { top, _G, <cfunc>, <name> }
-    if (lua_pcall(lua, 1, 0, 0)) {          // { top, _G, <cfunc>, <name> }
-        sds error = sdscatfmt(sdsempty(), "Error loading lua library via '%s': %s", file, lua_tostring(lua, -1));
-        *err = createObject(OBJ_STRING, error);
+    lua_pushcfunction(lua, luaopen_func);   // { top, _G, <luaopen_func> }
+    lua_pushstring(lua, libname);           // { top, _G, <luaopen_func>, <libname> }
+    if (lua_pcall(lua, 1, 0, 0)) {          // { top, _G, <luaopen_func>, <libname> }
+        *err = createObject(OBJ_STRING, sdsnew(lua_tostring(lua, -1)));
         goto label_done;
     }
 
@@ -95,13 +104,12 @@ label_done:
 
 int luaRegisterLibFile(scriptingEngine *engine,
                        subsystemType type,
-                       const char *file,
-                       const char *name,
+                       void *lib,
+                       const char *libname,
                        robj **err) {
-    serverLog(LL_NOTICE, "Loading lua library '%s' from file: %s", name, file);
     engineCtx *ctx = extractEngineCtx(engine);
     lua_State *lua = extractLuaState(ctx, type);
-    return luaRegisterLib(lua, file, name, err);
+    return doLuaRegisterLib(lua, lib, libname, err);
 }
 
 
@@ -110,7 +118,6 @@ int luaRegisterUdfModuleFile(scriptingEngine *engine,
                              const char *file,
                              const char *name,
                              robj **err) {
-    serverLog(LL_NOTICE, "Loading UDF module '%s' from file: %s", name, file);
     engineCtx *ctx = extractEngineCtx(engine);
     lua_State *lua = extractLuaState(ctx, type);
     return luaRegisterUdfModule(lua, luaLoadUdfModuleFile, file, name, err);
@@ -122,7 +129,6 @@ int luaRegisterUdfModuleContent(scriptingEngine *engine,
                                 const char *source,
                                 const char *name,
                                 robj **err) {
-    serverLog(LL_NOTICE, "Loading UDF module '%s' from source", name);
     engineCtx *ctx = extractEngineCtx(engine);
     lua_State *lua = extractLuaState(ctx, type);
     return luaRegisterUdfModule(lua, luaLoadUdfModuleString, source, name, err);

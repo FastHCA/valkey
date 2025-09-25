@@ -5350,7 +5350,7 @@ const char *LUALIB_LIST_Tips[] = {
 
 /* LUALIB command table */
 struct COMMAND_STRUCT LUALIB_Subcommands[] = {
-{MAKE_CMD("list","Returns all server-side Lua libraries.","O(N) where N is the number of the Lua libraries.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_LIST_History,0,LUALIB_LIST_Tips,2,luaLibCommand,2,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,LUALIB_LIST_Keyspecs,0,NULL,0)},
+{MAKE_CMD("list","Returns all names of server-side Lua libraries.","O(N) where N is the number of the Lua libraries.","8.1.2r1",CMD_DOC_NONE,NULL,NULL,"scripting",COMMAND_GROUP_SCRIPTING,LUALIB_LIST_History,0,LUALIB_LIST_Tips,2,luaLibCommand,2,CMD_NOSCRIPT,ACL_CATEGORY_SCRIPTING,LUALIB_LIST_Keyspecs,0,NULL,0)},
 {0}
 };
 

@@ -1,6 +1,6 @@
 {
     "LIST": {
-        "summary": "Returns all server-side Lua libraries.",
+        "summary": "Returns all names of server-side Lua libraries.",
         "complexity": "O(N) where N is the number of the Lua libraries.",
         "group": "scripting",
         "since": "8.1.2r1",
@@ -19,8 +19,7 @@
         ],
         "reply_schema": {
             "type": "array",
-            "description": "All elements of the set.",
-            "uniqueItems": true,
+            "description": "All names of the server-side Lua Libraries.",
             "items": {
                 "type": "string"
             }
